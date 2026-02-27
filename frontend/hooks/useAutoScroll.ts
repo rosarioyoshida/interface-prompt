@@ -7,7 +7,10 @@ interface UseAutoScrollOptions {
   threshold?: number
 }
 
-export function useAutoScroll({ dependency, threshold = 50 }: UseAutoScrollOptions) {
+export function useAutoScroll({
+  dependency,
+  threshold = 50,
+}: UseAutoScrollOptions) {
   const containerRef = useRef<HTMLDivElement>(null)
   const isManualRef = useRef(false)
 

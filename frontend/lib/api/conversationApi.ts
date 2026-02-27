@@ -1,4 +1,7 @@
-import type { ConversationResponse, PromptResultResponse } from "@/lib/types/conversation"
+import type {
+  ConversationResponse,
+  PromptResultResponse,
+} from "@/lib/types/conversation"
 
 const BASE_URL = "/api/v1/conversations"
 
@@ -28,17 +31,19 @@ export async function createConversation(): Promise<ConversationResponse> {
   return handleResponse<ConversationResponse>(res)
 }
 
-export async function getConversation(conversationId: string): Promise<ConversationResponse> {
+export async function getConversation(
+  conversationId: string,
+): Promise<ConversationResponse> {
   const res = await fetch(`${BASE_URL}/${conversationId}`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: { Accept: "application/json" },
   })
   return handleResponse<ConversationResponse>(res)
 }
 
 export async function sendPrompt(
   conversationId: string,
-  content: string
+  content: string,
 ): Promise<PromptResultResponse> {
   const res = await fetch(`${BASE_URL}/${conversationId}/prompts`, {
     method: "POST",
@@ -48,7 +53,9 @@ export async function sendPrompt(
   return handleResponse<PromptResultResponse>(res)
 }
 
-export async function deleteConversation(conversationId: string): Promise<void> {
+export async function deleteConversation(
+  conversationId: string,
+): Promise<void> {
   const res = await fetch(`${BASE_URL}/${conversationId}`, {
     method: "DELETE",
   })

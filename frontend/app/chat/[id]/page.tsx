@@ -13,8 +13,15 @@ interface ChatPageProps {
 
 export default function ChatPage({ params }: ChatPageProps) {
   const { id } = use(params)
-  const { messages, isLoading, isNewConversationLoading, error, sendPrompt, newConversation, clearError } =
-    useConversation({ conversationId: id })
+  const {
+    messages,
+    isLoading,
+    isNewConversationLoading,
+    error,
+    sendPrompt,
+    newConversation,
+    clearError,
+  } = useConversation({ conversationId: id })
 
   useEffect(() => {
     if (error) {

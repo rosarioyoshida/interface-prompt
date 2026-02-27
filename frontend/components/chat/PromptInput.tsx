@@ -46,7 +46,7 @@ export function PromptInput({ onSend, isLoading }: PromptInputProps) {
         handleSubmit()
       }
     },
-    [handleSubmit]
+    [handleSubmit],
   )
 
   return (
@@ -70,16 +70,19 @@ export function PromptInput({ onSend, isLoading }: PromptInputProps) {
               placeholder="Digite seu prompt... (Ctrl+Enter para enviar)"
               className={cn(
                 "min-h-[80px] resize-none",
-                isOverLimit && "border-destructive focus-visible:ring-destructive"
+                isOverLimit &&
+                  "border-destructive focus-visible:ring-destructive",
               )}
               disabled={isLoading}
               maxLength={MAX_LENGTH + 100}
               aria-label="Campo de prompt"
             />
-            <div className={cn(
-              "mt-1 text-right text-xs",
-              remaining < 100 ? "text-destructive" : "text-muted-foreground"
-            )}>
+            <div
+              className={cn(
+                "mt-1 text-right text-xs",
+                remaining < 100 ? "text-destructive" : "text-muted-foreground",
+              )}
+            >
               {remaining} caracteres restantes
             </div>
           </div>

@@ -14,7 +14,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ConversationStatus, type MessageResponse } from "@/lib/types/conversation"
+import {
+  ConversationStatus,
+  type MessageResponse,
+} from "@/lib/types/conversation"
 
 interface ConversationHeaderProps {
   messages: MessageResponse[]
@@ -78,7 +81,9 @@ export function ConversationHeader({
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+          aria-label={
+            theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
+          }
         >
           {theme === "dark" ? <Sun /> : <Moon />}
         </Button>
@@ -89,12 +94,15 @@ export function ConversationHeader({
               <AlertDialogHeader>
                 <AlertDialogTitle>Iniciar nova conversa?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  O histórico atual será apagado permanentemente. Esta ação não pode ser desfeita.
+                  O histórico atual será apagado permanentemente. Esta ação não
+                  pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={onNewConversation}>Confirmar</AlertDialogAction>
+                <AlertDialogAction onClick={onNewConversation}>
+                  Confirmar
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

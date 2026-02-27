@@ -8,6 +8,7 @@ import {
   sendPrompt as apiSendPrompt,
   deleteConversation,
 } from "@/lib/api/conversationApi"
+import { useConversationHistory } from "@/hooks/useConversationHistory"
 import type { MessageResponse } from "@/lib/types/conversation"
 
 interface UseConversationOptions {
@@ -24,11 +25,20 @@ interface UseConversationReturn {
   clearError: () => void
 }
 
-export function useConversation({ conversationId }: UseConversationOptions): UseConversationReturn {
+export function useConversation({
+  conversationId,
+}: UseConversationOptions): UseConversationReturn {
   const router = useRouter()
+  const {
+    upsertConversation,
+    registerFirstPromptContext,
+    activateConversation,
+    removeConversation,
+  } = useConversationHistory({ conversationId })
   const [messages, setMessages] = useState<MessageResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isNewConversationLoading, setIsNewConversationLoading] = useState(false)
+  const [isNewConversationLoading, setIsNewConversationLoading] =
+    useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Load existing conversation on mount
@@ -41,11 +51,21 @@ export function useConversation({ conversationId }: UseConversationOptions): Use
         const conversation = await getConversation(conversationId)
         if (!cancelled) {
           setMessages(conversation.messages)
+          upsertConversation({
+            conversationId,
+            createdAt: conversation.createdAt,
+          })
+          activateConversation(conversationId, new Date().toISOString())
         }
       } catch (err) {
         if (!cancelled) {
-          const msg = err instanceof Error ? err.message : "Erro ao carregar conversa"
-          if (msg.includes("404") || msg.toLowerCase().includes("não foi encontrada")) {
+          const msg =
+            err instanceof Error ? err.message : "Erro ao carregar conversa"
+          if (
+            msg.includes("404") ||
+            msg.toLowerCase().includes("não foi encontrada")
+          ) {
+            removeConversation(conversationId)
             router.push("/chat")
           } else {
             setError(msg)
@@ -59,25 +79,52 @@ export function useConversation({ conversationId }: UseConversationOptions): Use
     }
 
     load()
-    return () => { cancelled = true }
-  }, [conversationId, router])
-
-  const sendPrompt = useCallback(async (content: string) => {
-    if (isLoading) return
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const result = await apiSendPrompt(conversationId, content)
-      setMessages(prev => [...prev, result.userMessage, result.assistantMessage])
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro ao enviar prompt"
-      setError(msg)
-    } finally {
-      setIsLoading(false)
+    return () => {
+      cancelled = true
     }
-  }, [conversationId, isLoading])
+  }, [
+    activateConversation,
+    conversationId,
+    removeConversation,
+    router,
+    upsertConversation,
+  ])
+
+  const sendPrompt = useCallback(
+    async (content: string) => {
+      if (isLoading) return
+
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const result = await apiSendPrompt(conversationId, content)
+        setMessages((prev) => {
+          const isFirstSuccessfulPrompt = prev.length === 0
+          if (isFirstSuccessfulPrompt) {
+            registerFirstPromptContext({
+              conversationId,
+              firstPromptContent: content,
+              occurredAt: result.userMessage.timestamp,
+            })
+          }
+          return [...prev, result.userMessage, result.assistantMessage]
+        })
+        activateConversation(conversationId, result.userMessage.timestamp)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Erro ao enviar prompt"
+        setError(msg)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [
+      activateConversation,
+      conversationId,
+      isLoading,
+      registerFirstPromptContext,
+    ],
+  )
 
   const newConversation = useCallback(async () => {
     if (isLoading || isNewConversationLoading) return
@@ -93,7 +140,8 @@ export function useConversation({ conversationId }: UseConversationOptions): Use
       const created = await createConversation()
       router.push(`/chat/${created.id}`)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro ao criar nova conversa"
+      const msg =
+        err instanceof Error ? err.message : "Erro ao criar nova conversa"
       setError(msg)
       setIsNewConversationLoading(false)
     }

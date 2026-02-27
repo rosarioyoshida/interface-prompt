@@ -1,11 +1,30 @@
-﻿# Diretrizes do AGENTS
+﻿# interface-prompt Development Guidelines
 
-## Regras de idioma e formato
-- Idioma padrão para prompts e arquivos de saída: pt-BR.
-- Arquivos de template do spec-kit não devem ser traduzidos.
-- Timezone padrão para referência de datas e horários: UTC-3.
-- Codificação de caracteres padrão: UTF-8.
+Auto-generated from all feature plans. Last updated: 2026-02-27
 
-## Regras de execução
-- O AGENTS.md deve ser lido em toda iteração.
-- Essa leitura obrigatória também se aplica antes de executar comandos do spec-kit.
+## Active Technologies
+
+- TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI, `lucide-react` (001-prompt-history-sidebar)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+npm test; npm run lint
+
+## Code Style
+
+TypeScript 5.x, Next.js 15.2.1, React 19: Follow standard conventions
+
+## Recent Changes
+
+- 001-prompt-history-sidebar: Added TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI, `lucide-react`
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
