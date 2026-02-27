@@ -7,6 +7,8 @@
 export const HISTORY_STORAGE_KEY = "prompt_ui.history.v1"
 export const SIDEBAR_COLLAPSED_STORAGE_KEY =
   "prompt_ui.history.sidebar_collapsed.v1"
+export const HISTORY_UPDATED_EVENT = "prompt_ui.history.updated"
+export const SIDEBAR_UPDATED_EVENT = "prompt_ui.history.sidebar.updated"
 export const HISTORY_VERSION = 1
 export const HISTORY_MAX_ENTRIES = 20
 
@@ -49,6 +51,11 @@ function parseJson<T>(raw: string | null): T | undefined {
   } catch {
     return undefined
   }
+}
+
+function dispatchClientEvent(eventName: string): void {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new Event(eventName))
 }
 
 export function normalizePromptContext(input: string): string {
@@ -121,6 +128,7 @@ export function writeHistoryState(state: ConversationHistoryState): void {
     entries: capEntries(state.entries),
   }
   storage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(normalized))
+  dispatchClientEvent(HISTORY_UPDATED_EVENT)
 }
 
 export function readSidebarState(): HistorySidebarUIState {
@@ -135,6 +143,7 @@ export function readSidebarState(): HistorySidebarUIState {
 export function writeSidebarState(state: HistorySidebarUIState): void {
   const storage = getStorage()
   storage.setItem(SIDEBAR_COLLAPSED_STORAGE_KEY, JSON.stringify(state))
+  dispatchClientEvent(SIDEBAR_UPDATED_EVENT)
 }
 
 export function mergeHistoryStates(
@@ -277,5 +286,28 @@ export function removeConversation(
     entries: state.entries.filter(
       (entry) => entry.conversationId !== conversationId,
     ),
+  }
+}
+
+export interface RemoveConversationPersistResult {
+  ok: boolean
+  state: ConversationHistoryState
+  errorMessage?: string
+}
+
+export function removeConversationPersisted(
+  state: ConversationHistoryState,
+  conversationId: string,
+): RemoveConversationPersistResult {
+  const nextState = removeConversation(state, conversationId)
+  try {
+    writeHistoryState(nextState)
+    return { ok: true, state: nextState }
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Não foi possível excluir o histórico."
+    return { ok: false, state, errorMessage }
   }
 }

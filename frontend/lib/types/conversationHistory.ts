@@ -17,3 +17,10 @@ export interface ConversationHistoryState {
 export interface HistorySidebarUIState {
   isCollapsed: boolean
 }
+
+export interface DeleteConfirmationState {
+  conversationId?: string
+  isOpen: boolean
+  isSubmitting: boolean
+  errorMessage?: string
+}

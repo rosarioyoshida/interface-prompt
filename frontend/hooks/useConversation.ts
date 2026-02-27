@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   createConversation,
@@ -30,11 +30,13 @@ export function useConversation({
 }: UseConversationOptions): UseConversationReturn {
   const router = useRouter()
   const {
+    entries,
     upsertConversation,
     registerFirstPromptContext,
     activateConversation,
     removeConversation,
   } = useConversationHistory({ conversationId })
+  const hadConversationInHistoryRef = useRef(false)
   const [messages, setMessages] = useState<MessageResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isNewConversationLoading, setIsNewConversationLoading] =
@@ -89,6 +91,20 @@ export function useConversation({
     router,
     upsertConversation,
   ])
+
+  useEffect(() => {
+    const hasConversationInHistory = entries.some(
+      (entry) => entry.conversationId === conversationId,
+    )
+    if (hasConversationInHistory) {
+      hadConversationInHistoryRef.current = true
+      return
+    }
+
+    if (hadConversationInHistoryRef.current && !isLoading) {
+      router.push("/chat")
+    }
+  }, [conversationId, entries, isLoading, router])
 
   const sendPrompt = useCallback(
     async (content: string) => {

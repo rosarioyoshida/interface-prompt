@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import type {
   ConversationHistoryState,
+  DeleteConfirmationState,
   IterationHistoryEntry,
 } from "@/lib/types/conversationHistory"
 import {
   HISTORY_STORAGE_KEY,
+  HISTORY_UPDATED_EVENT,
   SIDEBAR_COLLAPSED_STORAGE_KEY,
+  SIDEBAR_UPDATED_EVENT,
   activateConversation as activateConversationState,
   defaultHistoryState,
   mergeHistoryStates,
@@ -15,6 +18,7 @@ import {
   readSidebarState,
   registerFirstPromptContext as registerFirstPromptContextState,
   removeConversation as removeConversationState,
+  removeConversationPersisted,
   upsertConversation as upsertConversationState,
   writeHistoryState,
   writeSidebarState,
@@ -39,6 +43,10 @@ interface UseConversationHistoryOutput {
   }) => void
   activateConversation: (conversationId: string, occurredAt: string) => void
   removeConversation: (conversationId: string) => void
+  requestDeleteConversation: (conversationId: string) => void
+  cancelDeleteConversation: () => void
+  confirmDeleteConversation: () => boolean
+  deleteConfirmation: DeleteConfirmationState
   toggleSidebar: () => void
 }
 
@@ -51,6 +59,11 @@ export function useConversationHistory({
   const [isCollapsed, setIsCollapsed] = useState<boolean>(
     () => readSidebarState().isCollapsed,
   )
+  const [deleteConfirmation, setDeleteConfirmation] =
+    useState<DeleteConfirmationState>({
+      isOpen: false,
+      isSubmitting: false,
+    })
 
   useEffect(() => {
     if (!conversationId) return
@@ -77,10 +90,20 @@ export function useConversationHistory({
         setIsCollapsed(readSidebarState().isCollapsed)
       }
     }
+    const onHistoryUpdated = () => {
+      setHistoryState(readHistoryState())
+    }
+    const onSidebarUpdated = () => {
+      setIsCollapsed(readSidebarState().isCollapsed)
+    }
 
     window.addEventListener("storage", onStorage)
+    window.addEventListener(HISTORY_UPDATED_EVENT, onHistoryUpdated)
+    window.addEventListener(SIDEBAR_UPDATED_EVENT, onSidebarUpdated)
     return () => {
       window.removeEventListener("storage", onStorage)
+      window.removeEventListener(HISTORY_UPDATED_EVENT, onHistoryUpdated)
+      window.removeEventListener(SIDEBAR_UPDATED_EVENT, onSidebarUpdated)
     }
   }, [])
 
@@ -126,6 +149,54 @@ export function useConversationHistory({
     })
   }, [])
 
+  const requestDeleteConversation = useCallback((id: string) => {
+    setDeleteConfirmation({
+      conversationId: id,
+      isOpen: true,
+      isSubmitting: false,
+      errorMessage: undefined,
+    })
+  }, [])
+
+  const cancelDeleteConversation = useCallback(() => {
+    setDeleteConfirmation({
+      isOpen: false,
+      isSubmitting: false,
+      errorMessage: undefined,
+      conversationId: undefined,
+    })
+  }, [])
+
+  const confirmDeleteConversation = useCallback((): boolean => {
+    const targetConversationId = deleteConfirmation.conversationId
+    if (!targetConversationId) return false
+
+    setDeleteConfirmation((prev) => ({
+      ...prev,
+      isSubmitting: true,
+        errorMessage: undefined,
+    }))
+
+    const result = removeConversationPersisted(historyState, targetConversationId)
+    if (result.ok) {
+      setHistoryState(result.state)
+      setDeleteConfirmation({
+        isOpen: false,
+        isSubmitting: false,
+        conversationId: undefined,
+        errorMessage: undefined,
+      })
+      return true
+    }
+
+    setDeleteConfirmation((current) => ({
+      ...current,
+      isSubmitting: false,
+      errorMessage: result.errorMessage ?? "Não foi possível excluir o histórico.",
+    }))
+    return false
+  }, [deleteConfirmation.conversationId, historyState])
+
   const toggleSidebar = useCallback(() => {
     setIsCollapsed((prev) => {
       const next = !prev
@@ -144,6 +215,10 @@ export function useConversationHistory({
     registerFirstPromptContext,
     activateConversation,
     removeConversation,
+    requestDeleteConversation,
+    cancelDeleteConversation,
+    confirmDeleteConversation,
+    deleteConfirmation,
     toggleSidebar,
   }
 }
