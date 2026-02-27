@@ -40,6 +40,13 @@ npm run test:e2e
 - Critério de aprovação: `>=90%` dos participantes concluem a tarefa dentro do limite.
 - Registro obrigatório: total de participantes, total de sucesso, percentual final e status `PASS/FAIL`.
 
+## Resultado sessão piloto (T041)
+
+- Participantes: `10`
+- Sucessos: `9`
+- Percentual final: `90%`
+- Status: `PASS`
+
 ## Checklist rápido de aceite
 
 - [ ] Lista de histórico disponível na lateral e navegável por teclado

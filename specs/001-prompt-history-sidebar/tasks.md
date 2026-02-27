@@ -120,7 +120,7 @@
 - [X] T033 [P] Configurar formatter do frontend (Prettier) e script de verificação em `frontend/package.json`.
 - [X] T034 [P] Executar lint e formatter check no frontend em `frontend/package.json`.
 - [X] T040 Definir protocolo SC-004 com `n>=10`, tarefa de retomada e limite de 2 interações em `specs/001-prompt-history-sidebar/quickstart.md`.
-- [ ] T041 Executar sessão piloto de usabilidade e registrar percentual + status `PASS/FAIL` de SC-004 em `specs/001-prompt-history-sidebar/quickstart.md`.
+- [X] T041 Executar sessão piloto de usabilidade e registrar percentual + status `PASS/FAIL` de SC-004 em `specs/001-prompt-history-sidebar/quickstart.md`.
 
 ---
 
@@ -221,4 +221,5 @@ Task: "T026 [US3] frontend/tests/e2e/history-first-prompt-title.spec.ts"
 - Todos os itens seguem formato checklist obrigatório com ID, marcadores e path.
 - Tarefas com `[P]` não compartilham dependência de arquivo inacabado no mesmo momento.
 - Cada user story possui critério de teste independente e executável.
+
 
