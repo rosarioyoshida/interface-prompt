@@ -1,0 +1,10 @@
+# Mock profile — activates EchoAiGatewayAdapter
+# Use this profile for local development without a real AI backend:
+#   SPRING_PROFILES_ACTIVE=mock
+#
+# The EchoAiGatewayAdapter returns "[Echo] <prompt>" for every request.
+# No actual HTTP call to an AI service is made.
+
+ai:
+  backend:
+    url: http://localhost:0

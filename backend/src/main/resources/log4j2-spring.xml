@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+  <Appenders>
+    <!-- Human-readable output for development (non-prod profiles) -->
+    <Console name="PatternConsole" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %logger{36} traceId=%X{traceId} - %msg%n"/>
+    </Console>
+
+    <!-- JSON structured output for production (prod profile) -->
+    <Console name="JsonConsole" target="SYSTEM_OUT">
+      <JsonTemplateLayout/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="PatternConsole"/>
+    </Root>
+
+    <Logger name="com.example.aiprompt" level="DEBUG" additivity="false">
+      <AppenderRef ref="PatternConsole"/>
+    </Logger>
+
+    <Logger name="org.springframework.web" level="INFO" additivity="false">
+      <AppenderRef ref="PatternConsole"/>
+    </Logger>
+  </Loggers>
+
+</Configuration>

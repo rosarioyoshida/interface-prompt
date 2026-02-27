@@ -1,0 +1,37 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ai-prompt-api
+  mvc:
+    problemdetails:
+      enabled: true
+
+ai:
+  backend:
+    url: ${AI_BACKEND_URL:http://localhost:11434/v1/chat/completions}
+
+frontend:
+  url: ${FRONTEND_URL:http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+  service:
+    name: ${OTEL_SERVICE_NAME:ai-prompt-api}
+  resource:
+    attributes: ${OTEL_RESOURCE_ATTRIBUTES:deployment.environment=local}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

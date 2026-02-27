@@ -1,0 +1,20 @@
+name: ai-prompt-ui
+
+# Local development overrides — activates mock AI adapter and exposes debug ports
+services:
+  api:
+    environment:
+      - SPRING_PROFILES_ACTIVE=mock
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # JVM remote debug port
+    command: >
+      java
+      -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      -jar app.jar
+
+  frontend:
+    environment:
+      - BACKEND_URL=http://api:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:8080

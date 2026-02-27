@@ -1,0 +1,94 @@
+name: ai-prompt-ui
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - AI_BACKEND_URL=${AI_BACKEND_URL}
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-default}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-ai-prompt-api}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4318}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=production}
+    depends_on:
+        otel-collector:
+          condition: service_started
+    networks:
+      - prompt-ui-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 640M
+        reservations:
+          cpus: "0.25"
+          memory: 320M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BACKEND_URL: http://api:8080
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://api:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - OTEL_SERVICE_NAME=ai-prompt-frontend
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    depends_on:
+      - api
+    networks:
+      - prompt-ui-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 384M
+        reservations:
+          cpus: "0.10"
+          memory: 192M
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.119.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "13133:13133"
+    networks:
+      - prompt-ui-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.10"
+          memory: 64M
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD", "/otelcol-contrib", "--version"]
+        interval: 10s
+        timeout: 3s
+        retries: 5
+
+networks:
+  prompt-ui-network:
+    driver: bridge
