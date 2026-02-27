@@ -42,5 +42,9 @@ Thumbs.db
 *.tmp
 coverage/
 
+# Agent workdirs
+.codex/
+.claude/
+
 # Tokens
 *token*
