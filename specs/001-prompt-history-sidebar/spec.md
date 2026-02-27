@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-prompt-history-sidebar`  
 **Created**: 2026-02-27  
-**Status**: Draft  
+**Status**: Completed  
 **Input**: User description: "na interface de prompt precisamos de uma lista contendo os históricos de iteração do usuário. Quando o usuário clicar sobre o nome do historico ele deve ser carregado como iteração atual. Essa lista deve ficar disponível em um menu lateral que pode ser recolhido para minimizar a quantidade de informações na tela. O hostorico deve ser gravado com o nome do contexto do primeiro prompt enviado."
 
 ## Clarifications
