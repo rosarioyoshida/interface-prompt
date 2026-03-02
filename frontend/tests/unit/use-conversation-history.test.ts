@@ -21,6 +21,21 @@ describe("useConversationHistory", () => {
     ).toContain("true")
   })
 
+  it("toggles chats section accordion and persists state", () => {
+    const { result } = renderHook(() =>
+      useConversationHistory({ conversationId: "abc" }),
+    )
+
+    expect(result.current.isChatsSectionExpanded).toBe(true)
+
+    act(() => result.current.toggleChatsSectionExpanded())
+
+    expect(result.current.isChatsSectionExpanded).toBe(false)
+    expect(
+      localStorage.getItem("prompt_ui.history.sidebar_collapsed.v1"),
+    ).toContain("isChatsSectionExpanded")
+  })
+
   it("upserts and activates conversation", () => {
     const { result } = renderHook(() =>
       useConversationHistory({ conversationId: "abc" }),
