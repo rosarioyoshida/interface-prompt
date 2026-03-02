@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 const pushMock = jest.fn()
-const confirmDeleteConversationMock = jest.fn()
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -25,11 +24,11 @@ jest.mock("@/hooks/useConversationHistory", () => ({
     activateConversation: jest.fn(),
     requestDeleteConversation: jest.fn(),
     cancelDeleteConversation: jest.fn(),
-    confirmDeleteConversation: confirmDeleteConversationMock,
+    confirmDeleteConversation: jest.fn(),
     deleteConfirmation: {
-      isOpen: true,
+      isOpen: false,
       isSubmitting: false,
-      conversationId: "c1",
+      conversationId: undefined,
       errorMessage: undefined,
     },
     toggleSidebar: jest.fn(),
@@ -53,20 +52,26 @@ jest.mock("@/hooks/useChatHistorySearch", () => ({
 
 import { HistorySidebar } from "@/components/chat/HistorySidebar"
 
-describe("HistorySidebar delete confirmation", () => {
-  beforeEach(() => {
-    pushMock.mockReset()
-    confirmDeleteConversationMock.mockReset()
-  })
-
-  it("navigates to /chat after successful deletion of active conversation", () => {
-    confirmDeleteConversationMock.mockReturnValue(true)
-
+describe("HistorySidebar search trigger", () => {
+  it("renders search trigger below collapse control", () => {
     render(<HistorySidebar conversationId="c1" />)
 
-    fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
+    const collapseButton = screen.getByRole("button", { name: /recolher histórico/i })
+    const searchTrigger = screen.getByRole("button", { name: /^buscar em chats$/i })
+    expect(
+      collapseButton.compareDocumentPosition(searchTrigger) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
 
-    expect(confirmDeleteConversationMock).toHaveBeenCalled()
-    expect(pushMock).toHaveBeenCalledWith("/chat")
+  it("opens search dialog from neutral textual trigger", () => {
+    render(<HistorySidebar conversationId="c1" />)
+
+    const searchTrigger = screen.getByRole("button", { name: /^buscar em chats$/i })
+    expect(searchTrigger.className).toContain("px-0")
+
+    fireEvent.click(searchTrigger)
+
+    expect(screen.getByRole("dialog", { name: /buscar em chats/i })).toBeInTheDocument()
   })
 })

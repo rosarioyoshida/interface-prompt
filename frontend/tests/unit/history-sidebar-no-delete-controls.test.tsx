@@ -23,6 +23,7 @@ jest.mock("@/hooks/useConversationHistory", () => ({
     ],
     activeConversationId: undefined,
     isCollapsed: false,
+    isChatsSectionExpanded: true,
     activateConversation: activateConversationMock,
     requestDeleteConversation: requestDeleteMock,
     cancelDeleteConversation: jest.fn(),
@@ -34,6 +35,7 @@ jest.mock("@/hooks/useConversationHistory", () => ({
       errorMessage: undefined,
     },
     toggleSidebar: jest.fn(),
+    toggleChatsSectionExpanded: jest.fn(),
     upsertConversation: jest.fn(),
     registerFirstPromptContext: jest.fn(),
     removeConversation: jest.fn(),
@@ -99,11 +101,11 @@ describe("HistorySidebar delete controls", () => {
     expect(requestDeleteMock).toHaveBeenCalledWith("c1")
   })
 
-  it("opens search dialog from root sidebar button above history label", () => {
+  it("opens search dialog from root sidebar button above section label", () => {
     render(<HistorySidebar conversationId="c1" />)
 
     const searchButton = screen.getByRole("button", { name: /^buscar em chats$/i })
-    const historyLabel = screen.getByText("Histórico")
+    const historyLabel = screen.getByText("Seus chats")
     expect(
       searchButton.compareDocumentPosition(historyLabel) &
         Node.DOCUMENT_POSITION_FOLLOWING,

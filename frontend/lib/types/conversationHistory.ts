@@ -16,6 +16,7 @@ export interface ConversationHistoryState {
 
 export interface HistorySidebarUIState {
   isCollapsed: boolean
+  isChatsSectionExpanded: boolean
 }
 
 export interface DeleteConfirmationState {

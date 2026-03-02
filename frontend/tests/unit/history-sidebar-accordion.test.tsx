@@ -1,10 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
-const pushMock = jest.fn()
-const confirmDeleteConversationMock = jest.fn()
+const toggleChatsSectionExpandedMock = jest.fn()
 
 jest.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: jest.fn() }),
   usePathname: () => "/chat/c1",
 }))
 
@@ -25,15 +24,15 @@ jest.mock("@/hooks/useConversationHistory", () => ({
     activateConversation: jest.fn(),
     requestDeleteConversation: jest.fn(),
     cancelDeleteConversation: jest.fn(),
-    confirmDeleteConversation: confirmDeleteConversationMock,
+    confirmDeleteConversation: jest.fn(),
     deleteConfirmation: {
-      isOpen: true,
+      isOpen: false,
       isSubmitting: false,
-      conversationId: "c1",
+      conversationId: undefined,
       errorMessage: undefined,
     },
     toggleSidebar: jest.fn(),
-    toggleChatsSectionExpanded: jest.fn(),
+    toggleChatsSectionExpanded: toggleChatsSectionExpandedMock,
     upsertConversation: jest.fn(),
     registerFirstPromptContext: jest.fn(),
     removeConversation: jest.fn(),
@@ -53,20 +52,19 @@ jest.mock("@/hooks/useChatHistorySearch", () => ({
 
 import { HistorySidebar } from "@/components/chat/HistorySidebar"
 
-describe("HistorySidebar delete confirmation", () => {
+describe("HistorySidebar accordion", () => {
   beforeEach(() => {
-    pushMock.mockReset()
-    confirmDeleteConversationMock.mockReset()
+    toggleChatsSectionExpandedMock.mockReset()
   })
 
-  it("navigates to /chat after successful deletion of active conversation", () => {
-    confirmDeleteConversationMock.mockReturnValue(true)
-
+  it("renders section title as 'Seus chats'", () => {
     render(<HistorySidebar conversationId="c1" />)
+    expect(screen.getByRole("button", { name: /seus chats/i })).toBeInTheDocument()
+  })
 
-    fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
-
-    expect(confirmDeleteConversationMock).toHaveBeenCalled()
-    expect(pushMock).toHaveBeenCalledWith("/chat")
+  it("toggles chats section when clicking accordion trigger", () => {
+    render(<HistorySidebar conversationId="c1" />)
+    fireEvent.click(screen.getByRole("button", { name: /seus chats/i }))
+    expect(toggleChatsSectionExpandedMock).toHaveBeenCalled()
   })
 })

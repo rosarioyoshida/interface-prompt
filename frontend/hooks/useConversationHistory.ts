@@ -32,6 +32,7 @@ interface UseConversationHistoryOutput {
   entries: IterationHistoryEntry[]
   activeConversationId?: string
   isCollapsed: boolean
+  isChatsSectionExpanded: boolean
   upsertConversation: (params: {
     conversationId: string
     createdAt: string
@@ -48,6 +49,7 @@ interface UseConversationHistoryOutput {
   confirmDeleteConversation: () => boolean
   deleteConfirmation: DeleteConfirmationState
   toggleSidebar: () => void
+  toggleChatsSectionExpanded: () => void
 }
 
 export function useConversationHistory({
@@ -59,6 +61,8 @@ export function useConversationHistory({
   const [isCollapsed, setIsCollapsed] = useState<boolean>(
     () => readSidebarState().isCollapsed,
   )
+  const [isChatsSectionExpanded, setIsChatsSectionExpanded] =
+    useState<boolean>(() => readSidebarState().isChatsSectionExpanded)
   const [deleteConfirmation, setDeleteConfirmation] =
     useState<DeleteConfirmationState>({
       isOpen: false,
@@ -87,14 +91,18 @@ export function useConversationHistory({
       }
 
       if (event.key === SIDEBAR_COLLAPSED_STORAGE_KEY) {
-        setIsCollapsed(readSidebarState().isCollapsed)
+        const sidebarState = readSidebarState()
+        setIsCollapsed(sidebarState.isCollapsed)
+        setIsChatsSectionExpanded(sidebarState.isChatsSectionExpanded)
       }
     }
     const onHistoryUpdated = () => {
       setHistoryState(readHistoryState())
     }
     const onSidebarUpdated = () => {
-      setIsCollapsed(readSidebarState().isCollapsed)
+      const sidebarState = readSidebarState()
+      setIsCollapsed(sidebarState.isCollapsed)
+      setIsChatsSectionExpanded(sidebarState.isChatsSectionExpanded)
     }
 
     window.addEventListener("storage", onStorage)
@@ -200,10 +208,18 @@ export function useConversationHistory({
   const toggleSidebar = useCallback(() => {
     setIsCollapsed((prev) => {
       const next = !prev
-      writeSidebarState({ isCollapsed: next })
+      writeSidebarState({ isCollapsed: next, isChatsSectionExpanded })
       return next
     })
-  }, [])
+  }, [isChatsSectionExpanded])
+
+  const toggleChatsSectionExpanded = useCallback(() => {
+    setIsChatsSectionExpanded((prev) => {
+      const next = !prev
+      writeSidebarState({ isCollapsed, isChatsSectionExpanded: next })
+      return next
+    })
+  }, [isCollapsed])
 
   const entries = useMemo(() => historyState.entries, [historyState.entries])
 
@@ -211,6 +227,7 @@ export function useConversationHistory({
     entries,
     activeConversationId: historyState.activeConversationId,
     isCollapsed,
+    isChatsSectionExpanded,
     upsertConversation,
     registerFirstPromptContext,
     activateConversation,
@@ -220,10 +237,11 @@ export function useConversationHistory({
     confirmDeleteConversation,
     deleteConfirmation,
     toggleSidebar,
+    toggleChatsSectionExpanded,
   }
 }
 
 export function resetConversationHistoryStateForTests(): void {
   writeHistoryState(defaultHistoryState())
-  writeSidebarState({ isCollapsed: false })
+  writeSidebarState({ isCollapsed: false, isChatsSectionExpanded: true })
 }

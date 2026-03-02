@@ -18,6 +18,7 @@ jest.mock("@/hooks/useConversationHistory", () => ({
     ],
     activeConversationId: "c1",
     isCollapsed: false,
+    isChatsSectionExpanded: true,
     activateConversation: jest.fn(),
     requestDeleteConversation: jest.fn(),
     cancelDeleteConversation: jest.fn(),
@@ -29,6 +30,7 @@ jest.mock("@/hooks/useConversationHistory", () => ({
       errorMessage: undefined,
     },
     toggleSidebar: jest.fn(),
+    toggleChatsSectionExpanded: jest.fn(),
     upsertConversation: jest.fn(),
     registerFirstPromptContext: jest.fn(),
     removeConversation: jest.fn(),
@@ -41,7 +43,7 @@ describe("HistorySidebar list", () => {
   it("renders entries and active state", () => {
     render(<HistorySidebar conversationId="c1" />)
 
-    expect(screen.getByText("Histórico")).toBeInTheDocument()
+    expect(screen.getByText("Seus chats")).toBeInTheDocument()
     expect(screen.getByText("Primeiro contexto")).toBeInTheDocument()
   })
 
@@ -51,6 +53,7 @@ describe("HistorySidebar list", () => {
       entries: [],
       activeConversationId: undefined,
       isCollapsed: false,
+      isChatsSectionExpanded: true,
       activateConversation: jest.fn(),
       requestDeleteConversation: jest.fn(),
       cancelDeleteConversation: jest.fn(),
@@ -62,6 +65,7 @@ describe("HistorySidebar list", () => {
         errorMessage: undefined,
       },
       toggleSidebar: jest.fn(),
+      toggleChatsSectionExpanded: jest.fn(),
       upsertConversation: jest.fn(),
       registerFirstPromptContext: jest.fn(),
       removeConversation: jest.fn(),

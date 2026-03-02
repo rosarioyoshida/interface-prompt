@@ -1,12 +1,15 @@
-﻿import {
+import {
   activateConversation,
   capEntries,
   defaultHistoryState,
+  defaultSidebarState,
   readHistoryState,
+  readSidebarState,
   registerFirstPromptContext,
   truncateVisibleTitle,
   upsertConversation,
   writeHistoryState,
+  writeSidebarState,
 } from "@/lib/history/conversationHistoryStore"
 
 describe("conversationHistoryStore", () => {
@@ -94,5 +97,17 @@ describe("conversationHistoryStore", () => {
 
     const loaded = readHistoryState()
     expect(loaded.entries[0].conversationId).toBe("c2")
+  })
+
+  it("uses expanded chats section as sidebar default", () => {
+    const state = defaultSidebarState()
+    expect(state.isCollapsed).toBe(false)
+    expect(state.isChatsSectionExpanded).toBe(true)
+  })
+
+  it("persists sidebar accordion expanded state", () => {
+    writeSidebarState({ isCollapsed: false, isChatsSectionExpanded: false })
+    const loaded = readSidebarState()
+    expect(loaded.isChatsSectionExpanded).toBe(false)
   })
 })

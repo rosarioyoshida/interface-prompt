@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useMemo, useState } from "react"
-import { MoreHorizontal, PanelLeft, PanelLeftClose } from "lucide-react"
+import { ChevronDown, MoreHorizontal, PanelLeft, PanelLeftClose } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DeleteHistoryDialog } from "@/components/chat/DeleteHistoryDialog"
@@ -27,6 +27,8 @@ export function HistorySidebar({ conversationId }: HistorySidebarProps) {
     confirmDeleteConversation,
     deleteConfirmation,
     toggleSidebar,
+    isChatsSectionExpanded,
+    toggleChatsSectionExpanded,
   } = useConversationHistory({ conversationId })
 
   const routeConversationId = useMemo(() => {
@@ -64,42 +66,63 @@ export function HistorySidebar({ conversationId }: HistorySidebarProps) {
         )}
         aria-label="Histórico de iterações"
       >
-        <div className="flex items-center justify-between border-b px-3 py-3">
+        <div className="border-b px-3 py-3">
+          <div className="flex items-center justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              aria-label={
+                isCollapsed ? "Expandir histórico" : "Recolher histórico"
+              }
+            >
+              {isCollapsed ? (
+                <PanelLeft className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
           {!isCollapsed && (
-            <div className="flex min-w-0 flex-1 flex-col gap-2 pr-2">
-              <Button
+            <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2">
+              <button
                 type="button"
-                variant="secondary"
-                className="justify-start"
+                className="w-fit rounded-sm px-0 py-1 text-sm font-medium text-foreground/90 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => setIsSearchDialogOpen(true)}
               >
                 Buscar em chats
-              </Button>
-              <h2 className="text-sm font-semibold">Histórico</h2>
+              </button>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between rounded-sm px-0 py-1 text-left text-sm font-semibold text-foreground/90 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-expanded={isChatsSectionExpanded}
+                aria-controls="history-sidebar-chats-section"
+                onClick={toggleChatsSectionExpanded}
+              >
+                <span>Seus chats</span>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    isChatsSectionExpanded ? "rotate-0" : "-rotate-90",
+                  )}
+                />
+              </button>
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            aria-label={
-              isCollapsed ? "Expandir histórico" : "Recolher histórico"
-            }
-          >
-            {isCollapsed ? (
-              <PanelLeft className="h-4 w-4" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4" />
-            )}
-          </Button>
         </div>
 
         {isCollapsed ? (
           <div className="flex flex-1 items-center justify-center px-2 text-center text-xs text-muted-foreground">
-            <span>Hist.</span>
+            <span>Chats</span>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-2">
+          <div
+            id="history-sidebar-chats-section"
+            className={cn(
+              "flex-1 overflow-y-auto p-2",
+              !isChatsSectionExpanded && "hidden",
+            )}
+          >
             {entries.length === 0 ? (
               <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
                 Nenhum histórico disponível.

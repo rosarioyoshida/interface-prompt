@@ -92,7 +92,7 @@ export function defaultHistoryState(): ConversationHistoryState {
 }
 
 export function defaultSidebarState(): HistorySidebarUIState {
-  return { isCollapsed: false }
+  return { isCollapsed: false, isChatsSectionExpanded: true }
 }
 
 export function readHistoryState(): ConversationHistoryState {
@@ -133,11 +133,17 @@ export function writeHistoryState(state: ConversationHistoryState): void {
 
 export function readSidebarState(): HistorySidebarUIState {
   const storage = getStorage()
-  return (
-    parseJson<HistorySidebarUIState>(
-      storage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY),
-    ) ?? defaultSidebarState()
+  const parsed = parseJson<HistorySidebarUIState>(
+    storage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY),
   )
+  if (!parsed) return defaultSidebarState()
+  return {
+    isCollapsed: !!parsed.isCollapsed,
+    isChatsSectionExpanded:
+      typeof parsed.isChatsSectionExpanded === "boolean"
+        ? parsed.isChatsSectionExpanded
+        : true,
+  }
 }
 
 export function writeSidebarState(state: HistorySidebarUIState): void {
