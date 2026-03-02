@@ -51,6 +51,7 @@ public class HttpAiGatewayAdapter implements AiGateway {
             String content = response.extractContent();
             if (content.isBlank()) {
                 log.warn("AI backend returned blank content");
+                throw new AiGatewayException("AI backend returned blank content");
             }
             return content;
 

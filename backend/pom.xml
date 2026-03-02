@@ -61,6 +61,18 @@
       </exclusions>
     </dependency>
 
+    <!-- Observability endpoints (health/info/metrics) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- Log4j2 (replaces Logback) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

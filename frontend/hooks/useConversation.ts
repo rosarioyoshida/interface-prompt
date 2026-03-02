@@ -9,6 +9,7 @@ import {
   deleteConversation,
 } from "@/lib/api/conversationApi"
 import { useConversationHistory } from "@/hooks/useConversationHistory"
+import { ApiProblemError } from "@/lib/api/problemDetails"
 import type { MessageResponse } from "@/lib/types/conversation"
 
 interface UseConversationOptions {
@@ -23,6 +24,20 @@ interface UseConversationReturn {
   sendPrompt: (content: string) => Promise<void>
   newConversation: () => Promise<void>
   clearError: () => void
+}
+
+const MAX_PROMPT_LENGTH = 4096
+
+function buildErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiProblemError) {
+    const detail = error.problem.detail || error.problem.title || fallback
+    if (error.problem.traceId) {
+      return `${detail} (traceId: ${error.problem.traceId})`
+    }
+    return detail
+  }
+  if (error instanceof Error) return error.message
+  return fallback
 }
 
 export function useConversation({
@@ -61,8 +76,13 @@ export function useConversation({
         }
       } catch (err) {
         if (!cancelled) {
-          const msg =
-            err instanceof Error ? err.message : "Erro ao carregar conversa"
+          if (err instanceof ApiProblemError && err.problem.status === 404) {
+            removeConversation(conversationId)
+            router.push("/chat")
+            return
+          }
+
+          const msg = buildErrorMessage(err, "Erro ao carregar conversa")
           if (
             msg.includes("404") ||
             msg.toLowerCase().includes("não foi encontrada")
@@ -109,18 +129,27 @@ export function useConversation({
   const sendPrompt = useCallback(
     async (content: string) => {
       if (isLoading) return
+      const normalizedContent = content.trim()
+      if (!normalizedContent) {
+        setError("O prompt não pode estar vazio.")
+        return
+      }
+      if (normalizedContent.length > MAX_PROMPT_LENGTH) {
+        setError(`O prompt não pode exceder ${MAX_PROMPT_LENGTH} caracteres.`)
+        return
+      }
 
       setIsLoading(true)
       setError(null)
 
       try {
-        const result = await apiSendPrompt(conversationId, content)
+        const result = await apiSendPrompt(conversationId, normalizedContent)
         setMessages((prev) => {
           const isFirstSuccessfulPrompt = prev.length === 0
           if (isFirstSuccessfulPrompt) {
             registerFirstPromptContext({
               conversationId,
-              firstPromptContent: content,
+              firstPromptContent: normalizedContent,
               occurredAt: result.userMessage.timestamp,
             })
           }
@@ -128,7 +157,7 @@ export function useConversation({
         })
         activateConversation(conversationId, result.userMessage.timestamp)
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Erro ao enviar prompt"
+        const msg = buildErrorMessage(err, "Erro ao enviar prompt")
         setError(msg)
       } finally {
         setIsLoading(false)
@@ -156,8 +185,7 @@ export function useConversation({
       const created = await createConversation()
       router.push(`/chat/${created.id}`)
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Erro ao criar nova conversa"
+      const msg = buildErrorMessage(err, "Erro ao criar nova conversa")
       setError(msg)
       setIsNewConversationLoading(false)
     }

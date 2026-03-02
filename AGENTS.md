@@ -7,6 +7,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-27
 - `localStorage` (`prompt_ui.history.v1`) com fallback em memória para sessão (001-delete-history-item)
 - TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI (`AlertDialog`, `DropdownMenu`), `lucide-react` (001-delete-history-item)
 - `localStorage` (`prompt_ui.history.v1`) com fallback em memória na sessão (001-delete-history-item)
+- TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI (`AlertDialog`, `DropdownMenu`, `Dialog`, `Input`), `lucide-react` (001-search-chat-history)
+- `localStorage` (`prompt_ui.history.v1`) com fallback em memoria na sessao (001-search-chat-history)
 
 - TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI, `lucide-react` (001-prompt-history-sidebar)
 
@@ -27,10 +29,10 @@ npm test; npm run lint
 TypeScript 5.x, Next.js 15.2.1, React 19: Follow standard conventions
 
 ## Recent Changes
+- 001-search-chat-history: Added TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI (`AlertDialog`, `DropdownMenu`, `Dialog`, `Input`), `lucide-react`
 - 001-delete-history-item: Added TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI (`AlertDialog`, `DropdownMenu`), `lucide-react`
 - 001-delete-history-item: Added TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI (AlertDialog/DropdownMenu), `lucide-react`
 
-- 001-prompt-history-sidebar: Added TypeScript 5.x, Next.js 15.2.1, React 19 + Next.js App Router, React hooks, Tailwind CSS, Shadcn/UI, `lucide-react`
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

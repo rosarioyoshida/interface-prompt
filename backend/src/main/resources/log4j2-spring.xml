@@ -9,7 +9,7 @@
 
     <!-- JSON structured output for production (prod profile) -->
     <Console name="JsonConsole" target="SYSTEM_OUT">
-      <JsonTemplateLayout/>
+      <JsonLayout compact="true" eventEol="true" stacktraceAsString="true"/>
     </Console>
   </Appenders>
 

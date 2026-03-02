@@ -5,6 +5,8 @@ import { MoreHorizontal, PanelLeft, PanelLeftClose } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DeleteHistoryDialog } from "@/components/chat/DeleteHistoryDialog"
+import { SearchChatsDialog } from "@/components/chat/SearchChatsDialog"
+import { useChatHistorySearch } from "@/hooks/useChatHistorySearch"
 import { useConversationHistory } from "@/hooks/useConversationHistory"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +36,24 @@ export function HistorySidebar({ conversationId }: HistorySidebarProps) {
 
   const currentActiveId = routeConversationId || activeConversationId
   const [actionsMenuFor, setActionsMenuFor] = useState<string | null>(null)
+  const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false)
+
+  const {
+    query,
+    mode,
+    results,
+    setQuery,
+    clearQuery,
+    openConversationFromResult,
+  } = useChatHistorySearch({
+    entries,
+    onOpenConversation: (targetConversationId) => {
+      activateConversation(targetConversationId, new Date().toISOString())
+      router.push(`/chat/${targetConversationId}`)
+      setIsSearchDialogOpen(false)
+      clearQuery()
+    },
+  })
 
   return (
     <>
@@ -45,7 +65,19 @@ export function HistorySidebar({ conversationId }: HistorySidebarProps) {
         aria-label="Histórico de iterações"
       >
         <div className="flex items-center justify-between border-b px-3 py-3">
-          {!isCollapsed && <h2 className="text-sm font-semibold">Histórico</h2>}
+          {!isCollapsed && (
+            <div className="flex min-w-0 flex-1 flex-col gap-2 pr-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="justify-start"
+                onClick={() => setIsSearchDialogOpen(true)}
+              >
+                Buscar em chats
+              </Button>
+              <h2 className="text-sm font-semibold">Histórico</h2>
+            </div>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -171,6 +203,19 @@ export function HistorySidebar({ conversationId }: HistorySidebarProps) {
             router.push("/chat")
           }
         }}
+      />
+
+      <SearchChatsDialog
+        isOpen={isSearchDialogOpen}
+        query={query}
+        mode={mode}
+        results={results}
+        onClose={() => {
+          setIsSearchDialogOpen(false)
+          clearQuery()
+        }}
+        onQueryChange={setQuery}
+        onResultClick={openConversationFromResult}
       />
     </>
   )
